@@ -1,10 +1,10 @@
+// THIS FILE IS THE MAIN MODULE OF THE APP, BRINGING EVERYTHING TOGETHER
+
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppResolver } from './app.resolver';
-import { join } from 'path';
 
 @Module({
   imports: [
@@ -13,7 +13,6 @@ import { join } from 'path';
       typePaths: ['./**/*.graphql'],
     }),
   ],
-  controllers: [AppController],
   providers: [AppService, AppResolver],
 })
 export class AppModule {}

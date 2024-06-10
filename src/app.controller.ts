@@ -1,3 +1,5 @@
+// THIS FILE HANDLES HTTP REQUESTS
+
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 

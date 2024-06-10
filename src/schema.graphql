@@ -1,3 +1,18 @@
+type Order {
+  id: ID!
+  currentState: String!
+  costumer: String!
+  lineItems: [String!]!
+  createdAt: String!
+  updatedAt: String!
+}
+
 type Query {
-  hello: String
+  getOrder(id: ID!): Order
+  getOrders: [Order!]!
+}
+
+type Mutation {
+  createOrder(costumer: String!, lineItems: [String!]!): Order
+  updateOrder(id: ID!, currentState: String!): Order
 }
