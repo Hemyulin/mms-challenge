@@ -1,7 +1,7 @@
 type Order {
   id: ID!
   currentState: String!
-  costumer: String!
+  customer: String!
   employee: String
   lineItems: [String!]!
   createdAt: String!
@@ -14,6 +14,6 @@ type Query {
 }
 
 type Mutation {
-  createOrder(costumer: String!, lineItems: [String!]!): Order
+  createOrder(customer: String!, lineItems: [String!]!): Order
   updateOrder(id: ID!, currentState: String!, employee: String): Order
 }
