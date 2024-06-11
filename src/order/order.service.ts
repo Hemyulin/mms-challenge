@@ -12,6 +12,12 @@ export class OrderService {
     customer: string,
     lineItems: string[],
   ): Promise<OrderDocument> {
+    if (!customer) {
+      throw new BadRequestException('Customer field cannot be empty!');
+    }
+    if (!lineItems) {
+      throw new BadRequestException('Item list cannot be empty!');
+    }
     const newOrder = new this.orderModel({
       currentState: OrderStatus.OPEN,
       customer,
