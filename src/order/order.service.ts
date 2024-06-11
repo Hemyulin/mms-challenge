@@ -1,16 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { OrderStatus } from './order.status.enum';
-
-interface OrderEntity {
-  id: string;
-  currentState: OrderStatus;
-  customer: string;
-  employee: string;
-  lineItems: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+import { OrderEntity } from './order.entity';
 
 @Injectable()
 export class OrderService {
