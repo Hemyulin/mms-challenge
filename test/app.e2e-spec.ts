@@ -3,10 +3,10 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
-describe('AppController (e2e)', () => {
+describe('GraphQL API (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -15,10 +15,111 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('should create an order', async () => {
+    const createOrderMutation = `
+    mutation {
+      createOrder(customer: "Jesus", lineItems: ["item1", "item2"]) {
+        id
+        customer
+        currentState
+        employee
+        lineItems
+        createdAt
+        updatedAt
+      }
+    }
+    `;
+
+    const response = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: createOrderMutation,
+      })
+      .expect(200);
+
+    const order = response.body.data.createOrder;
+    expect(order).toHaveProperty('id');
+    expect(order.customer).toBe('Jesus');
+    expect(order.lineItems).toEqual(['item1', 'item2']);
+  });
+
+  it('should get all orders', async () => {
+    const getOrdersQuery = `
+      query {
+        getOrders {
+          id
+          customer
+          currentState
+          employee
+          lineItems
+          createdAt
+          updatedAt
+        }
+      }
+    `;
+
+    const response = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: getOrdersQuery,
+      })
+      .expect(200);
+
+    const orders = response.body.data.getOrders;
+    expect(orders).toBeInstanceOf(Array);
+  });
+
+  it('should update an order', async () => {
+    const createOrderMutation = `
+      mutation {
+        createOrder(customer: "Jane Doe", lineItems: ["item3", "item4"]) {
+          id
+          customer
+          currentState
+          employee
+          lineItems
+          createdAt
+          updatedAt
+        }
+      }
+    `;
+
+    const createResponse = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: createOrderMutation,
+      })
+      .expect(200);
+
+    const orderId = createResponse.body.data.createOrder.id;
+
+    const updateOrderMutation = `
+      mutation {
+        updateOrder(id: "${orderId}", currentState: "IN_PROGRESS", employee: "Jane Smith") {
+          id
+          customer
+          currentState
+          employee
+          lineItems
+          createdAt
+          updatedAt
+        }
+      }
+    `;
+
+    const updateResponse = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: updateOrderMutation,
+      })
+      .expect(200);
+
+    const updatedOrder = updateResponse.body.data.updateOrder;
+    expect(updatedOrder.currentState).toBe('IN_PROGRESS');
+    expect(updatedOrder.employee).toBe('Jane Smith');
   });
 });
