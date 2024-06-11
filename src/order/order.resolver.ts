@@ -1,6 +1,7 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { OrderService } from './order.service';
 import { Order } from './order.model';
+import { OrderStatus } from './order.status.enum';
 
 @Resolver(() => Order)
 export class OrderResolver {
@@ -24,13 +25,14 @@ export class OrderResolver {
     @Args('lineItems', { type: () => [String] }) lineItems: string[],
   ): Order {
     const orderEntity = this.orderService.createOrder(customer, lineItems);
-    return { ...orderEntity } as Order; // Type casting to avoid conflicts
+    return { ...orderEntity } as Order;
   }
 
   @Mutation(() => Order)
   updateOrder(
     @Args('id') id: string,
-    @Args('currentState') currentState: string,
+    @Args('currentState', { type: () => OrderStatus })
+    currentState: OrderStatus,
     @Args('employee', { nullable: true }) employee?: string,
   ): Order {
     const orderEntity = this.orderService.updateOrder(
@@ -38,6 +40,6 @@ export class OrderResolver {
       currentState,
       employee,
     );
-    return { ...orderEntity } as Order; // Type casting to avoid conflicts
+    return { ...orderEntity } as Order;
   }
 }

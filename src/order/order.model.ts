@@ -1,12 +1,13 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { OrderStatus } from './order.status.enum';
 
 @ObjectType()
 export class Order {
   @Field(() => ID)
   id: string;
 
-  @Field()
-  currentState: string;
+  @Field(() => OrderStatus)
+  currentState: OrderStatus;
 
   @Field()
   customer: string;

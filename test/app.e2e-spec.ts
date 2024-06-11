@@ -47,6 +47,63 @@ describe('GraphQL API (e2e)', () => {
     expect(order.lineItems).toEqual(['item1', 'item2']);
   });
 
+  it('should update an order to IN_PROGRESS', async () => {
+    const createOrderMutation = `
+      mutation {
+        createOrder(customer: "Jane Doe", lineItems: ["item3", "item4"]) {
+          id
+          customer
+          currentState
+          employee
+          lineItems
+          createdAt
+          updatedAt
+        }
+      }
+    `;
+
+    const createResponse = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({ query: createOrderMutation })
+      .expect(200);
+
+    const orderId = createResponse.body.data.createOrder.id;
+
+    const updateOrderMutation = `
+      mutation {
+        updateOrder(id: "${orderId}", currentState: IN_PROGRESS, employee: "Jane Smith") {
+          id
+          customer
+          currentState
+          employee
+          lineItems
+          createdAt
+          updatedAt
+        }
+      }
+    `;
+
+    try {
+      const updateResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({
+          query: updateOrderMutation,
+        })
+        .expect(200);
+
+      const updatedOrder = updateResponse.body.data.updateOrder;
+      expect(updatedOrder.currentState).toBe('IN_PROGRESS');
+      expect(updatedOrder.employee).toBe('Jane Smith');
+    } catch (err) {
+      if (err.response) {
+        console.error(err.response.body);
+      } else {
+        console.error(err);
+      }
+      throw err;
+    }
+  });
+
   it('should get all orders', async () => {
     const getOrdersQuery = `
       query {
@@ -99,7 +156,7 @@ describe('GraphQL API (e2e)', () => {
 
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "${orderId}", currentState: "IN_PROGRESS", employee: "Jane Smith") {
+        updateOrder(id: "${orderId}", currentState: IN_PROGRESS, employee: "Jane Smith") {
           id
           customer
           currentState
@@ -111,15 +168,24 @@ describe('GraphQL API (e2e)', () => {
       }
     `;
 
-    const updateResponse = await request(app.getHttpServer())
-      .post('/graphql')
-      .send({
-        query: updateOrderMutation,
-      })
-      .expect(200);
+    try {
+      const updateResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({
+          query: updateOrderMutation,
+        })
+        .expect(200);
 
-    const updatedOrder = updateResponse.body.data.updateOrder;
-    expect(updatedOrder.currentState).toBe('IN_PROGRESS');
-    expect(updatedOrder.employee).toBe('Jane Smith');
+      const updatedOrder = updateResponse.body.data.updateOrder;
+      expect(updatedOrder.currentState).toBe('IN_PROGRESS');
+      expect(updatedOrder.employee).toBe('Jane Smith');
+    } catch (err) {
+      if (err.response) {
+        console.error(err.response.body);
+      } else {
+        console.error(err);
+      }
+      throw err;
+    }
   });
 });
