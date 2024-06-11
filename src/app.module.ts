@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { OrderService } from './order/order.service';
-import { OrderResolver } from './order/order.resolver';
 import { MongooseModule } from '@nestjs/mongoose';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -12,7 +11,7 @@ import { MongooseModule } from '@nestjs/mongoose';
       driver: ApolloDriver,
       typePaths: ['./**/*.graphql'],
     }),
+    OrderModule,
   ],
-  providers: [OrderService, OrderResolver],
 })
 export class AppModule {}

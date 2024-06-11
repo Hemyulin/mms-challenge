@@ -1,40 +1,39 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { OrderStatus } from './order.status.enum';
-import { OrderEntity } from './order.entity';
+import { OrderDocument } from './order.schema';
 
 @Injectable()
 export class OrderService {
-  private orders: OrderEntity[] = [];
+  constructor(@InjectModel('Order') private orderModel: Model<OrderDocument>) {}
 
-  createOrder(customer: string, lineItems: string[]): OrderEntity {
-    const newOrder: OrderEntity = {
-      id: uuidv4(),
+  async createOrder(
+    customer: string,
+    lineItems: string[],
+  ): Promise<OrderDocument> {
+    const newOrder = new this.orderModel({
       currentState: OrderStatus.OPEN,
       customer,
-      employee: '',
       lineItems,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    this.orders.push(newOrder);
-    return newOrder;
+    });
+    return newOrder.save();
   }
 
-  getOrder(id: string): OrderEntity {
-    return this.orders.find((order) => order.id === id);
+  async getOrder(id: string): Promise<OrderDocument> {
+    return this.orderModel.findById(id).exec();
   }
 
-  getOrders(): OrderEntity[] {
-    return this.orders;
+  async getOrders(): Promise<OrderDocument[]> {
+    return this.orderModel.find().exec();
   }
 
-  updateOrder(
+  async updateOrder(
     id: string,
     currentState: OrderStatus,
     employee?: string,
-  ): OrderEntity {
-    const order = this.orders.find((order) => order.id === id);
+  ): Promise<OrderDocument> {
+    const order = await this.orderModel.findById(id).exec();
     if (!order) {
       throw new BadRequestException('Order not found');
     }
@@ -62,7 +61,7 @@ export class OrderService {
     }
 
     order.currentState = currentState;
-    order.updatedAt = new Date().toISOString();
-    return order;
+    order.updatedAt = new Date();
+    return order.save();
   }
 }

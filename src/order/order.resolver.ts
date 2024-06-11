@@ -2,44 +2,39 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { OrderService } from './order.service';
 import { Order } from './order.model';
 import { OrderStatus } from './order.status.enum';
+import { OrderDocument } from './order.schema';
 
 @Resolver(() => Order)
 export class OrderResolver {
   constructor(private readonly orderService: OrderService) {}
 
   @Query(() => Order)
-  getOrder(@Args('id') id: string): Order {
+  async getOrder(@Args('id') id: string): Promise<OrderDocument> {
     const orderEntity = this.orderService.getOrder(id);
-    return { ...orderEntity } as Order;
+    return this.orderService.getOrder(id);
   }
 
   @Query(() => [Order])
-  getOrders(): Order[] {
+  async getOrders(): Promise<OrderDocument[]> {
     const orderEntities = this.orderService.getOrders();
-    return orderEntities.map((order) => ({ ...order }) as Order);
+    return this.orderService.getOrders();
   }
 
   @Mutation(() => Order)
-  createOrder(
+  async createOrder(
     @Args('customer') customer: string,
     @Args('lineItems', { type: () => [String] }) lineItems: string[],
-  ): Order {
-    const orderEntity = this.orderService.createOrder(customer, lineItems);
-    return { ...orderEntity } as Order;
+  ): Promise<OrderDocument> {
+    return this.orderService.createOrder(customer, lineItems);
   }
 
   @Mutation(() => Order)
-  updateOrder(
+  async updateOrder(
     @Args('id') id: string,
     @Args('currentState', { type: () => OrderStatus })
     currentState: OrderStatus,
-    @Args('employee', { nullable: true }) employee?: string,
-  ): Order {
-    const orderEntity = this.orderService.updateOrder(
-      id,
-      currentState,
-      employee,
-    );
-    return { ...orderEntity } as Order;
+    @Args('employee') employee: string,
+  ): Promise<OrderDocument> {
+    return this.orderService.updateOrder(id, currentState, employee);
   }
 }
