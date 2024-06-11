@@ -3,6 +3,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OrderModule } from './order/order.module';
+import { DateScalar } from './graphql/date.scalar';
 
 @Module({
   imports: [
@@ -13,5 +14,6 @@ import { OrderModule } from './order/order.module';
     }),
     OrderModule,
   ],
+  providers: [DateScalar],
 })
 export class AppModule {}

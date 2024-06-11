@@ -1,3 +1,5 @@
+scalar Date
+
 enum OrderStatus {
   OPEN
   IN_PROGRESS
@@ -10,8 +12,8 @@ type Order {
   customer: String!
   employee: String
   lineItems: [String!]!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Date!
+  updatedAt: Date!
 }
 
 type Query {

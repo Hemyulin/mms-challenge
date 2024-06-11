@@ -22,7 +22,7 @@ describe('GraphQL API (e2e)', () => {
   it('should create an order', async () => {
     const createOrderMutation = `
     mutation {
-      createOrder(customer: "Jesus", lineItems: ["item1", "item2"]) {
+      createOrder(customer: "Max Mustermann", lineItems: ["item1", "item2"]) {
         id
         customer
         currentState
@@ -43,7 +43,7 @@ describe('GraphQL API (e2e)', () => {
 
     const order = response.body.data.createOrder;
     expect(order).toHaveProperty('id');
-    expect(order.customer).toBe('Jesus');
+    expect(order.customer).toBe('Max Mustermann');
     expect(order.lineItems).toEqual(['item1', 'item2']);
   });
 
