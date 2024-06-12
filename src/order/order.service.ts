@@ -1,12 +1,20 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, isValidObjectId } from 'mongoose';
 import { OrderStatus } from './order.status.enum';
 import { OrderDocument } from './order.schema';
 
 @Injectable()
 export class OrderService {
   constructor(@InjectModel('Order') private orderModel: Model<OrderDocument>) {}
+
+  async getOrder(id: string): Promise<OrderDocument> {
+    return this.orderModel.findById(id).exec();
+  }
+
+  async getOrders(): Promise<OrderDocument[]> {
+    return this.orderModel.find().exec();
+  }
 
   async createOrder(
     customer: string,
@@ -15,7 +23,7 @@ export class OrderService {
     if (!customer) {
       throw new BadRequestException('Customer field cannot be empty!');
     }
-    if (!lineItems) {
+    if (!lineItems || lineItems.length === 0) {
       throw new BadRequestException('Item list cannot be empty!');
     }
     const newOrder = new this.orderModel({
@@ -26,19 +34,18 @@ export class OrderService {
     return newOrder.save();
   }
 
-  async getOrder(id: string): Promise<OrderDocument> {
-    return this.orderModel.findById(id).exec();
-  }
-
-  async getOrders(): Promise<OrderDocument[]> {
-    return this.orderModel.find().exec();
-  }
-
   async updateOrder(
     id: string,
     currentState: OrderStatus,
     employee?: string,
   ): Promise<OrderDocument> {
+    if (!id) {
+      throw new BadRequestException('id field cannot be empty!');
+    }
+    if (!isValidObjectId(id)) {
+      throw new BadRequestException('Invalid order id!');
+    }
+
     const order = await this.orderModel.findById(id).exec();
     if (!order) {
       throw new BadRequestException('Order not found');
