@@ -1,5 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { OrderStatus } from './order.status.enum';
+import { Employees } from './employees.enum';
 
 @ObjectType()
 export class Order {
@@ -12,8 +13,8 @@ export class Order {
   @Field()
   customer: string;
 
-  @Field()
-  employee: string;
+  @Field(() => Employees)
+  employee: Employees;
 
   @Field(() => [String])
   lineItems: string[];

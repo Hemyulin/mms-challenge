@@ -6,11 +6,20 @@ enum OrderStatus {
   COMPLETE
 }
 
+enum Employees {
+  NoEmployee
+  Ralph
+  Uwe
+  Nancy
+  Martina
+  Helmut
+}
+
 type Order {
   id: ID!
   currentState: OrderStatus!
   customer: String!
-  employee: String
+  employee: Employees!
   lineItems: [String!]!
   createdAt: Date!
   updatedAt: Date!
@@ -23,5 +32,5 @@ type Query {
 
 type Mutation {
   createOrder(customer: String!, lineItems: [String!]!): Order
-  updateOrder(id: ID!, currentState: OrderStatus!, employee: String): Order
+  updateOrder(id: ID!, currentState: OrderStatus!, employee: Employees!): Order
 }

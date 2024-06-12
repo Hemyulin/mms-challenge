@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, isValidObjectId } from 'mongoose';
 import { OrderStatus } from './order.status.enum';
 import { OrderDocument } from './order.schema';
+import { Employees } from './employees.enum';
 
 @Injectable()
 export class OrderService {
@@ -37,7 +38,7 @@ export class OrderService {
   async updateOrder(
     id: string,
     currentState: OrderStatus,
-    employee?: string,
+    employee?: Employees,
   ): Promise<OrderDocument> {
     if (!id) {
       throw new BadRequestException('id field cannot be empty!');
@@ -57,7 +58,7 @@ export class OrderService {
           `Invalid state transition from ${order.currentState} to ${currentState}`,
         );
       }
-      if (!employee) {
+      if (employee === Employees.NoEmployee) {
         throw new BadRequestException(
           'Employee must be provided when setting order to IN_PROGRESS',
         );

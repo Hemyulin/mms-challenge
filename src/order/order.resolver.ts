@@ -3,6 +3,7 @@ import { OrderService } from './order.service';
 import { Order } from './order.model';
 import { OrderStatus } from './order.status.enum';
 import { OrderDocument } from './order.schema';
+import { Employees } from './employees.enum';
 
 @Resolver(() => Order)
 export class OrderResolver {
@@ -33,7 +34,8 @@ export class OrderResolver {
     @Args('id') id: string,
     @Args('currentState', { type: () => OrderStatus })
     currentState: OrderStatus,
-    @Args('employee') employee: string,
+    @Args('employee', { type: () => Employees })
+    employee: Employees,
   ): Promise<OrderDocument> {
     return this.orderService.updateOrder(id, currentState, employee);
   }
