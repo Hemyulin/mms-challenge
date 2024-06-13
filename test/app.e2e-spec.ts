@@ -6,16 +6,15 @@ import { Model } from 'mongoose';
 import { OrderDocument } from '../src/order/order.schema';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017';
+
 describe('GraphQL API (e2e)', () => {
   let app: INestApplication;
   let orderModel: Model<OrderDocument>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        AppModule,
-        MongooseModule.forRoot('mongodb://localhost:27017/nest_test'),
-      ],
+      imports: [AppModule, MongooseModule.forRoot(`${MONGO_URI}/nest_test`)],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -118,7 +117,7 @@ describe('GraphQL API (e2e)', () => {
   it('should update an order to IN_PROGRESS', async () => {
     const createOrderMutation = `
       mutation {
-        createOrder(customer: "updateOrderTestCustomer", lineItems: ["item3", "item4"]) {
+        createOrder(customer: "Jane Doe", lineItems: ["item3", "item4"]) {
           id
           customer
           currentState
@@ -139,7 +138,7 @@ describe('GraphQL API (e2e)', () => {
 
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "${orderId}", currentState: IN_PROGRESS, employee: "updateOrderTestEmployee") {
+        updateOrder(id: "${orderId}", currentState: IN_PROGRESS, employee: "Jane Smith") {
           id
           customer
           currentState
@@ -151,25 +150,16 @@ describe('GraphQL API (e2e)', () => {
       }
     `;
 
-    try {
-      const updateResponse = await request(app.getHttpServer())
-        .post('/graphql')
-        .send({
-          query: updateOrderMutation,
-        })
-        .expect(200);
+    const updateResponse = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: updateOrderMutation,
+      })
+      .expect(200);
 
-      const updatedOrder = updateResponse.body.data.updateOrder;
-      expect(updatedOrder.currentState).toBe('IN_PROGRESS');
-      expect(updatedOrder.employee).toBe('updateOrderTestEmployee');
-    } catch (err) {
-      if (err.response) {
-        console.error(err.response.body);
-      } else {
-        console.error(err);
-      }
-      throw err;
-    }
+    const updatedOrder = updateResponse.body.data.updateOrder;
+    expect(updatedOrder.currentState).toBe('IN_PROGRESS');
+    expect(updatedOrder.employee).toBe('Jane Smith');
   });
 
   it('should get all orders', async () => {
@@ -255,7 +245,7 @@ describe('GraphQL API (e2e)', () => {
   it('should fail to update order to IN_PROGRESS without employee', async () => {
     const createOrderMutation = `
       mutation {
-        createOrder(customer: "updateOrderTestFailIfnoEmployee", lineItems: ["item3", "item4"]) {
+        createOrder(customer: "Jane Doe", lineItems: ["item3", "item4"]) {
           id
           customer
           currentState
@@ -276,7 +266,7 @@ describe('GraphQL API (e2e)', () => {
 
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "${orderId}", currentState: IN_PROGRESS, employee: "") {
+        updateOrder(id: "${orderId}", currentState: IN_PROGRESS) {
           id
           customer
           currentState
@@ -293,7 +283,7 @@ describe('GraphQL API (e2e)', () => {
       .send({
         query: updateOrderMutation,
       })
-      .expect(200);
+      .expect(400);
 
     expect(response.body.errors).toBeDefined();
     expect(response.body.errors[0].message).toContain(
@@ -332,7 +322,7 @@ describe('GraphQL API (e2e)', () => {
   it('should fail to update order to COMPLETE from OPEN state', async () => {
     const createOrderMutation = `
       mutation {
-        createOrder(customer: "Test Customer", lineItems: ["item1"]) {
+        createOrder(customer: "Jane Doe", lineItems: ["item3", "item4"]) {
           id
           customer
           currentState
@@ -353,7 +343,7 @@ describe('GraphQL API (e2e)', () => {
 
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "${orderId}", currentState: COMPLETE, employee: "Test Employee") {
+        updateOrder(id: "${orderId}", currentState: COMPLETE) {
           id
           customer
           currentState
@@ -370,11 +360,11 @@ describe('GraphQL API (e2e)', () => {
       .send({
         query: updateOrderMutation,
       })
-      .expect(200);
+      .expect(400);
 
     expect(response.body.errors).toBeDefined();
     expect(response.body.errors[0].message).toContain(
-      'Invalid state transition',
+      'Invalid state transition from OPEN to COMPLETE',
     );
   });
 });
