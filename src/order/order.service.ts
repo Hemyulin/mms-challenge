@@ -43,11 +43,12 @@ export class OrderService {
     if (!id) {
       throw new BadRequestException('id field cannot be empty!');
     }
+
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid order id!');
     }
-
     const order = await this.orderModel.findById(id).exec();
+
     if (!order) {
       throw new BadRequestException('Order not found');
     }
