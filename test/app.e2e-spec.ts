@@ -53,9 +53,7 @@ describe('GraphQL API (e2e)', () => {
 
     const createResponse = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: createOrderMutation,
-      })
+      .send({ query: createOrderMutation })
       .expect(200);
 
     const orderId = createResponse.body.data.createOrder.id;
@@ -76,39 +74,37 @@ describe('GraphQL API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: getOrderQuery,
-      })
+      .send({ query: getOrderQuery })
       .expect(200);
 
-    const order = response.body.data.getOrder;
+    const { data } = response.body;
+    const order = data.getOrder;
     expect(order).toHaveProperty('id');
     expect(order.customer).toBe('getOrderTest');
   });
 
   it('should create an order', async () => {
     const createOrderMutation = `
-    mutation {
-      createOrder(customer: "createOrderTest", lineItems: ["item1", "item2"]) {
-        id
-        customer
-        currentState
-        employee
-        lineItems
-        createdAt
-        updatedAt
+      mutation {
+        createOrder(customer: "createOrderTest", lineItems: ["item1", "item2"]) {
+          id
+          customer
+          currentState
+          employee
+          lineItems
+          createdAt
+          updatedAt
+        }
       }
-    }
     `;
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: createOrderMutation,
-      })
+      .send({ query: createOrderMutation })
       .expect(200);
 
-    const order = response.body.data.createOrder;
+    const { data } = response.body;
+    const order = data.createOrder;
     expect(order).toHaveProperty('id');
     expect(order.customer).toBe('createOrderTest');
     expect(order.lineItems).toEqual(['item1', 'item2']);
@@ -138,7 +134,7 @@ describe('GraphQL API (e2e)', () => {
 
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "${orderId}", currentState: IN_PROGRESS, employee: "Jane Smith") {
+        updateOrder(id: "${orderId}", currentState: IN_PROGRESS, employee: Uwe) {
           id
           customer
           currentState
@@ -152,14 +148,21 @@ describe('GraphQL API (e2e)', () => {
 
     const updateResponse = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: updateOrderMutation,
-      })
-      .expect(200);
+      .send({ query: updateOrderMutation });
 
-    const updatedOrder = updateResponse.body.data.updateOrder;
+    if (updateResponse.status !== 200) {
+      console.error(
+        'Update Order Mutation Error:',
+        JSON.stringify(updateResponse.body.errors, null, 2),
+      );
+    }
+
+    expect(updateResponse.status).toBe(200);
+
+    const { data } = updateResponse.body;
+    const updatedOrder = data.updateOrder;
     expect(updatedOrder.currentState).toBe('IN_PROGRESS');
-    expect(updatedOrder.employee).toBe('Jane Smith');
+    expect(updatedOrder.employee).toBe('Uwe');
   });
 
   it('should get all orders', async () => {
@@ -179,19 +182,18 @@ describe('GraphQL API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: getOrdersQuery,
-      })
+      .send({ query: getOrdersQuery })
       .expect(200);
 
-    const orders = response.body.data.getOrders;
+    const { data } = response.body;
+    const orders = data.getOrders;
     expect(orders).toBeInstanceOf(Array);
   });
 
   it('should fail to update an order with invalid id', async () => {
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "invalid-id", currentState: IN_PROGRESS, employee: "updateOrderTestFailIfInvalidId") {
+        updateOrder(id: "invalid-id", currentState: IN_PROGRESS, employee: Uwe) {
           id
           customer
           currentState
@@ -205,9 +207,7 @@ describe('GraphQL API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: updateOrderMutation,
-      })
+      .send({ query: updateOrderMutation })
       .expect(200);
 
     expect(response.body.errors).toBeDefined();
@@ -216,24 +216,22 @@ describe('GraphQL API (e2e)', () => {
 
   it('should fail to create an order without customer', async () => {
     const createOrderMutation = `
-    mutation {
-      createOrder(customer: "", lineItems: ["item1", "item2"]) {
-        id
-        customer
-        currentState
-        employee
-        lineItems
-        createdAt
-        updatedAt
+      mutation {
+        createOrder(customer: "", lineItems: ["item1", "item2"]) {
+          id
+          customer
+          currentState
+          employee
+          lineItems
+          createdAt
+          updatedAt
+        }
       }
-    }
     `;
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: createOrderMutation,
-      })
+      .send({ query: createOrderMutation })
       .expect(200);
 
     expect(response.body.errors).toBeDefined();
@@ -280,37 +278,33 @@ describe('GraphQL API (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: updateOrderMutation,
-      })
+      .send({ query: updateOrderMutation })
       .expect(400);
 
     expect(response.body.errors).toBeDefined();
     expect(response.body.errors[0].message).toContain(
-      'Employee must be provided when setting order to IN_PROGRESS',
+      'Field "updateOrder" argument "employee" of type "Employees!" is required, but it was not provided.',
     );
   });
 
   it('should fail to create an order without lineItems', async () => {
     const createOrderMutation = `
-    mutation {
-      createOrder(customer: "Test Customer", lineItems: []) {
-        id
-        customer
-        currentState
-        employee
-        lineItems
-        createdAt
-        updatedAt
+      mutation {
+        createOrder(customer: "Test Customer", lineItems: []) {
+          id
+          customer
+          currentState
+          employee
+          lineItems
+          createdAt
+          updatedAt
+        }
       }
-    }
     `;
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: createOrderMutation,
-      })
+      .send({ query: createOrderMutation })
       .expect(200);
 
     expect(response.body.errors).toBeDefined();
@@ -343,7 +337,7 @@ describe('GraphQL API (e2e)', () => {
 
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "${orderId}", currentState: COMPLETE) {
+        updateOrder(id: "${orderId}", currentState: COMPLETE, employee: Martina) {
           id
           customer
           currentState
@@ -355,15 +349,15 @@ describe('GraphQL API (e2e)', () => {
       }
     `;
 
-    const response = await request(app.getHttpServer())
+    const updateResponse = await request(app.getHttpServer())
       .post('/graphql')
-      .send({
-        query: updateOrderMutation,
-      })
-      .expect(400);
+      .send({ query: updateOrderMutation });
 
-    expect(response.body.errors).toBeDefined();
-    expect(response.body.errors[0].message).toContain(
+    expect(updateResponse.status).toBe(200); // The status should still be 200 for GraphQL responses
+
+    const { errors } = updateResponse.body;
+    expect(errors).toBeDefined();
+    expect(errors[0].message).toContain(
       'Invalid state transition from OPEN to COMPLETE',
     );
   });
