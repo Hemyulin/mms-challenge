@@ -353,7 +353,7 @@ describe('GraphQL API (e2e)', () => {
       .post('/graphql')
       .send({ query: updateOrderMutation });
 
-    expect(updateResponse.status).toBe(200); // The status should still be 200 for GraphQL responses
+    expect(updateResponse.status).toBe(200);
 
     const { errors } = updateResponse.body;
     expect(errors).toBeDefined();
