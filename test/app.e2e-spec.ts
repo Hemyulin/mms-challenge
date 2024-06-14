@@ -28,13 +28,14 @@ describe('GraphQL API (e2e)', () => {
     await app.close();
   });
 
-  beforeEach(async () => {
-    await orderModel.deleteMany({});
-  });
+  // TODO: Fix the deletion of all documents
+  // beforeEach(async () => {
+  //   await orderModel.deleteMany({});
+  // });
 
-  afterEach(async () => {
-    await orderModel.deleteMany({});
-  });
+  // afterEach(async () => {
+  //   await orderModel.deleteMany({});
+  // });
 
   it('should retrieve a single order by id', async () => {
     const createOrderMutation = `
