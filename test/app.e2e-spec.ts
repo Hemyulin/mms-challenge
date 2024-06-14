@@ -57,11 +57,11 @@ describe('GraphQL API (e2e)', () => {
       .send({ query: createOrderMutation })
       .expect(200);
 
-    const orderId = createResponse.body.data.createOrder.id;
+    const { id } = createResponse.body.data.createOrder;
 
     const getOrderQuery = `
       query {
-        getOrder(id: "${orderId}") {
+        getOrder(id: "${id}") {
           id
           customer
           currentState
@@ -131,11 +131,11 @@ describe('GraphQL API (e2e)', () => {
       .send({ query: createOrderMutation })
       .expect(200);
 
-    const orderId = createResponse.body.data.createOrder.id;
+    const { id } = createResponse.body.data.createOrder;
 
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "${orderId}", currentState: IN_PROGRESS, employee: Uwe) {
+        updateOrder(id: "${id}", currentState: IN_PROGRESS, employee: Uwe) {
           id
           customer
           currentState
@@ -261,11 +261,11 @@ describe('GraphQL API (e2e)', () => {
       .send({ query: createOrderMutation })
       .expect(200);
 
-    const orderId = createResponse.body.data.createOrder.id;
+    const { id } = createResponse.body.data.createOrder;
 
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "${orderId}", currentState: IN_PROGRESS) {
+        updateOrder(id: "${id}", currentState: IN_PROGRESS) {
           id
           customer
           currentState
@@ -334,11 +334,11 @@ describe('GraphQL API (e2e)', () => {
       .send({ query: createOrderMutation })
       .expect(200);
 
-    const orderId = createResponse.body.data.createOrder.id;
+    const { id } = createResponse.body.data.createOrder;
 
     const updateOrderMutation = `
       mutation {
-        updateOrder(id: "${orderId}", currentState: COMPLETE, employee: Martina) {
+        updateOrder(id: "${id}", currentState: COMPLETE, employee: Martina) {
           id
           customer
           currentState
