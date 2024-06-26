@@ -4,6 +4,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OrderModule } from './order/order.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
+import { EmployeeModule } from './employee/employee.module';
+import { CustomerModule } from './customer/customer.module';
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017';
 
@@ -15,6 +17,8 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017';
       typePaths: ['./**/*.graphql'],
     }),
     OrderModule,
+    EmployeeModule,
+    CustomerModule,
   ],
 })
 export class AppModule implements NestModule {
