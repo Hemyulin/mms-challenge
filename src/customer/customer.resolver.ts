@@ -8,14 +8,13 @@ export class CustomerResolver {
   constructor(private readonly customerService: CustomerService) {}
 
   @Query(() => Customer)
-  async Customer(@Args('id') id: string): Promise<CustomerDocument> {
-    const customerEntity = this.customerService.Customer(id);
-    return this.customerService.Customer(id);
+  async getCustomer(@Args('id') id: string): Promise<CustomerDocument> {
+    return this.customerService.getCustomer(id);
   }
 
   @Query(() => [Customer])
-  async Customers(): Promise<CustomerDocument[]> {
-    return this.customerService.Customers();
+  async getCustomers(): Promise<CustomerDocument[]> {
+    return this.customerService.getCustomers();
   }
 
   @Mutation(() => Customer)
@@ -25,5 +24,15 @@ export class CustomerResolver {
     @Args('password') password: string,
   ): Promise<CustomerDocument> {
     return this.customerService.createCustomer(name, email, password);
+  }
+
+  @Mutation(() => Customer)
+  async updateCustomer(
+    @Args('id') id: string,
+    @Args('name') name: string,
+    @Args('email') email: string,
+    @Args('password') password: string,
+  ): Promise<CustomerDocument> {
+    return this.customerService.updateCustomer(id, { name, email, password });
   }
 }

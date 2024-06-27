@@ -39,8 +39,8 @@ type Customer {
 type Query {
   getOrder(id: ID!): Order
   getOrders: [Order!]!
-  Customer(id: ID!): Customer
-  Customers: [Customer!]
+  getCustomer(id: ID!): Customer
+  getCustomers: [Customer!]
 }
 
 type Mutation {
@@ -48,4 +48,10 @@ type Mutation {
   updateOrder(id: ID!, currentState: OrderStatus!, employee: Employees!): Order
 
   createCustomer(name: String!, email: String!, password: String!): Customer
+  updateCustomer(
+    id: ID!
+    name: String!
+    email: String!
+    password: String!
+  ): Customer
 }
