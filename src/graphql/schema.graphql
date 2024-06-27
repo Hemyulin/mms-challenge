@@ -23,6 +23,19 @@ type Order {
   updatedAt: String!
 }
 
+type LineItems {
+  id: ID!
+  title: String!
+  price: Int!
+}
+
+type Customer {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+}
+
 type Query {
   getOrder(id: ID!): Order
   getOrders: [Order!]!
