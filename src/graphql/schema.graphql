@@ -39,9 +39,13 @@ type Customer {
 type Query {
   getOrder(id: ID!): Order
   getOrders: [Order!]!
+  Customer(id: ID!): Customer
+  Customers: [Customer!]
 }
 
 type Mutation {
   createOrder(customer: String!, lineItems: [String!]!): Order
   updateOrder(id: ID!, currentState: OrderStatus!, employee: Employees!): Order
+
+  createCustomer(name: String!, email: String!, password: String!): Customer
 }
