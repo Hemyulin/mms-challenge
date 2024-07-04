@@ -9,6 +9,10 @@ export class CustomerService {
     @InjectModel('Customer') private customerModel: Model<CustomerDocument>,
   ) {}
 
+  async findOneByEmail(email: string): Promise<Customer | undefined> {
+    return await this.customerModel.findOne({email}).exec()
+  }
+
   async getCustomer(id: string): Promise<CustomerDocument> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid customer id!');
