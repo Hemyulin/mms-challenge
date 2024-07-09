@@ -4,15 +4,6 @@ enum OrderStatus {
   COMPLETE
 }
 
-enum Employees {
-  NoEmployee
-  Ralph
-  Uwe
-  Nancy
-  Martina
-  Helmut
-}
-
 type Order {
   id: ID!
   currentState: OrderStatus!
@@ -36,17 +27,28 @@ type Customer {
   password: String!
 }
 
+type Employee {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+}
+
 type Query {
   getOrder(id: ID!): Order
   getOrders: [Order!]!
   getCustomer(id: ID!): Customer
   getCustomers: [Customer!]
+  getEmployee(id: ID!): employee
+  getEmployees: [Employee!]
 }
 
 type Mutation {
+  # ORDER
   createOrder(customer: String!, lineItems: [String!]!): Order
   updateOrder(id: ID!, currentState: OrderStatus!, employee: Employees!): Order
 
+  # CUSTOMER  
   createCustomer(name: String!, email: String!, password: String!): Customer
   updateCustomer(
     id: ID!
@@ -54,4 +56,13 @@ type Mutation {
     email: String!
     password: String!
   ): Customer
+
+  # EMPLOYEE
+  createEmployee(name: String!, email: String!, password: String!): Employee
+  updateEmployee(
+    id: ID!
+    name: String!
+    email: String!
+    password: String!
+    )
 }
