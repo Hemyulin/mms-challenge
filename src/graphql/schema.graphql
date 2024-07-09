@@ -8,7 +8,7 @@ type Order {
   id: ID!
   currentState: OrderStatus!
   customer: String!
-  employee: Employees!
+  employee: Employee!
   lineItems: [String!]!
   createdAt: String!
   updatedAt: String!
@@ -34,19 +34,25 @@ type Employee {
   password: String!
 }
 
+input EmployeeInput {
+  name: String!
+  email: String!
+  password: String!
+}
+
 type Query {
   getOrder(id: ID!): Order
   getOrders: [Order!]!
   getCustomer(id: ID!): Customer
   getCustomers: [Customer!]
-  getEmployee(id: ID!): employee
+  getEmployee(id: ID!): Employee
   getEmployees: [Employee!]
 }
 
 type Mutation {
   # ORDER
   createOrder(customer: String!, lineItems: [String!]!): Order
-  updateOrder(id: ID!, currentState: OrderStatus!, employee: Employees!): Order
+  updateOrder(id: ID!, currentState: OrderStatus!, employee: EmployeeInput!): Order
 
   # CUSTOMER  
   createCustomer(name: String!, email: String!, password: String!): Customer
@@ -64,5 +70,5 @@ type Mutation {
     name: String!
     email: String!
     password: String!
-    )
+    ): Employee
 }
