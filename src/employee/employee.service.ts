@@ -5,7 +5,7 @@ import { isValidObjectId } from "mongoose";
 
 @Injectable()
 export class EmployeeService{
-    constructor(@Inject('EmployeeRepository') private employeeRepository: EmployeeRepository){}
+    constructor(@Inject('EmployeeRepository') private employeeRepository: EmployeeRepository) {}
 
     async getEmployee(id: string): Promise<EmployeeDocument>{
         if(!isValidObjectId(id)){

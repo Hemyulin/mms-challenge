@@ -1,27 +1,27 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CustomerDocument } from './customer.schema';
-import { Model, isValidObjectId } from 'mongoose';
+import { isValidObjectId } from 'mongoose';
+import { CustomerRepository } from './customer.repository.interface';
 
 @Injectable()
 export class CustomerService {
   constructor(
-    @InjectModel('Customer') private customerModel: Model<CustomerDocument>,
-  ) {}
+    @Inject('CustomerRepository') private customerRepository: CustomerRepository) {}
 
   async getCustomer(id: string): Promise<CustomerDocument> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid customer id!');
     }
-    const customer = await this.customerModel.findById(id).exec();
+    const customer = await this.customerRepository.findById(id)
     if (!customer) {
       throw new BadRequestException('Customer not found');
     }
     return customer;
   }
 
+
   async getCustomers(): Promise<CustomerDocument[]> {
-    return this.customerModel.find().exec();
+    return this.customerRepository.findAll()
   }
 
   async createCustomer(
