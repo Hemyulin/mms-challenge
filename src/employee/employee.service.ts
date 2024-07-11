@@ -28,7 +28,7 @@ export class EmployeeService{
         password: string,
     ): Promise<EmployeeDocument>{
         if(!name || !email || !password){
-            throw new BadRequestException('All fields must be proviced!')
+            throw new BadRequestException('All fields must be provided!')
         }
         return this.employeeRepository.create({ name, email, password })
     }

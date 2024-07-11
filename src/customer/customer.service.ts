@@ -32,12 +32,7 @@ export class CustomerService {
     if (!name || !email || !password) {
       throw new BadRequestException('All fields must be provided');
     }
-    const newCustomer = new this.customerModel({
-      name,
-      email,
-      password,
-    });
-    return newCustomer.save();
+    return this.customerRepository.create({name, email, password })
   }
 
   async updateCustomer(
@@ -47,11 +42,10 @@ export class CustomerService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid customer id!');
     }
-    const customer = await this.customerModel.findById(id).exec();
+    const customer = await this.customerRepository.findById(id)
     if (!customer) {
       throw new BadRequestException('Customer not found');
     }
-    Object.assign(customer, updateData);
-    return customer.save();
+    return this.customerRepository.update(id, updateData)
   }
 }
