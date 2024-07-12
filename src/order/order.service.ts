@@ -1,20 +1,27 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import { Model, isValidObjectId } from 'mongoose';
 import { OrderStatus } from './order.status.enum';
 import { OrderDocument } from './order.schema';
 import { Employee } from 'src/employee/employee.model';
+import { OrderRepository } from './order.repository.interface';
 
 @Injectable()
 export class OrderService {
-  constructor(@InjectModel('Order') private orderModel: Model<OrderDocument>) {}
+  constructor(@Inject('OrderRepository') private orderRepository: OrderRepository) {}
 
   async getOrder(id: string): Promise<OrderDocument> {
-    return this.orderModel.findById(id).exec();
+    if(!isValidObjectId(id)){
+      throw new BadRequestException('Invalid order id!')
+    }
+    const order = await this.orderRepository.findById(id)
+    if(!order){
+      throw new BadRequestException("Order not found!")
+    }
+    return order
   }
 
   async getOrders(): Promise<OrderDocument[]> {
-    return this.orderModel.find().exec();
+    return this.orderRepository.findAll()
   }
 
   async createOrder(
@@ -27,12 +34,7 @@ export class OrderService {
     if (!lineItems || lineItems.length === 0) {
       throw new BadRequestException('Item list cannot be empty!');
     }
-    const newOrder = new this.orderModel({
-      currentState: OrderStatus.OPEN,
-      customer,
-      lineItems,
-    });
-    return newOrder.save();
+    return this.orderRepository.create({ customer, lineItems })
   }
 
   async updateOrder(
@@ -47,11 +49,14 @@ export class OrderService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid order id!');
     }
-    const order = await this.orderModel.findById(id).exec();
+    const order = await this.orderRepository.findById
 
     if (!order) {
       throw new BadRequestException('Order not found');
     }
+
+    // WORK FROM HERE
+    // STATUS CHANGES NEED TO BE RETHOUGHT AND REFACTORED
 
     if (currentState === OrderStatus.IN_PROGRESS) {
       if (order.currentState !== OrderStatus.OPEN) {

@@ -24,6 +24,6 @@ export class EmployeeRepositoryImpl implements EmployeeRepository {
     }
 
     async update(id: string, updateData: Partial<EmployeeDocument>): Promise<EmployeeDocument> {
-      return this.employeeModel.findByIdAndUpdate(id, updateData, {new: true}).exec()  
+      return this.employeeModel.findByIdAndUpdate(id, updateData, { new: true }).exec()  
     }
 }
