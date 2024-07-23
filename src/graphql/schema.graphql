@@ -7,7 +7,7 @@ enum OrderStatus {
 type Order {
   id: ID!
   currentState: OrderStatus!
-  customer: String!
+  customer: Customer!
   employee: Employee!
   lineItems: [String!]!
   createdAt: String!
@@ -52,9 +52,13 @@ type Query {
 type Mutation {
   # ORDER
   createOrder(customer: String!, lineItems: [String!]!): Order
-  updateOrder(id: ID!, currentState: OrderStatus!, employee: EmployeeInput!): Order
+  updateOrder(
+    id: ID!
+    currentState: OrderStatus!
+    employee: EmployeeInput!
+  ): Order
 
-  # CUSTOMER  
+  # CUSTOMER
   createCustomer(name: String!, email: String!, password: String!): Customer
   updateCustomer(
     id: ID!
@@ -70,5 +74,5 @@ type Mutation {
     name: String!
     email: String!
     password: String!
-    ): Employee
+  ): Employee
 }

@@ -4,6 +4,7 @@ import { Order } from './order.model';
 import { OrderStatus } from './order.status.enum';
 import { OrderDocument } from './order.schema';
 import { Employee } from 'src/employee/employee.model';
+import { OrderInput, UpdateOrderInput } from './order.input';
 
 @Resolver(() => Order)
 export class OrderResolver {
@@ -22,21 +23,17 @@ export class OrderResolver {
   }
 
   @Mutation(() => Order)
-  async createOrder(
-    @Args('customer') customer: string,
-    @Args('lineItems', { type: () => [String] }) lineItems: string[],
-  ): Promise<OrderDocument> {
-    return this.orderService.createOrder(customer, lineItems);
+  async createOrder(@Args('input') input: OrderInput): Promise<OrderDocument> {
+    const { customerId, lineItems } = input;
+    return this.orderService.createOrder(customerId, lineItems);
   }
 
   @Mutation(() => Order)
   async updateOrder(
     @Args('id') id: string,
-    @Args('currentState', { type: () => OrderStatus })
-    currentState: OrderStatus,
-    @Args('employee', { type: () => Employee })
-    employee: Employee,
+    @Args('input') input: UpdateOrderInput,
   ): Promise<OrderDocument> {
+    const { currentState, employee } = input;
     return this.orderService.updateOrder(id, currentState, employee);
   }
 }

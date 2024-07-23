@@ -1,46 +1,53 @@
 import { Injectable, BadRequestException, Inject } from '@nestjs/common';
-import { Model, isValidObjectId } from 'mongoose';
+import { isValidObjectId } from 'mongoose';
 import { OrderStatus } from './order.status.enum';
 import { OrderDocument } from './order.schema';
 import { Employee } from 'src/employee/employee.model';
 import { OrderRepository } from './order.repository.interface';
+import { EmployeeInput } from '../order/order.input';
 
 @Injectable()
 export class OrderService {
-  constructor(@Inject('OrderRepository') private orderRepository: OrderRepository) {}
+  constructor(
+    @Inject('OrderRepository') private orderRepository: OrderRepository,
+  ) {}
 
   async getOrder(id: string): Promise<OrderDocument> {
-    if(!isValidObjectId(id)){
-      throw new BadRequestException('Invalid order id!')
+    if (!isValidObjectId(id)) {
+      throw new BadRequestException('Invalid order id!');
     }
-    const order = await this.orderRepository.findById(id)
-    if(!order){
-      throw new BadRequestException("Order not found!")
+    const order = await this.orderRepository.findById(id);
+    if (!order) {
+      throw new BadRequestException('Order not found!');
     }
-    return order
+    return order;
   }
 
   async getOrders(): Promise<OrderDocument[]> {
-    return this.orderRepository.findAll()
+    return this.orderRepository.findAll();
   }
 
   async createOrder(
-    customer: string,
+    customerId: string,
     lineItems: string[],
   ): Promise<OrderDocument> {
-    if (!customer) {
+    if (!customerId) {
       throw new BadRequestException('Customer field cannot be empty!');
     }
     if (!lineItems || lineItems.length === 0) {
       throw new BadRequestException('Item list cannot be empty!');
     }
-    return this.orderRepository.create({ customer, lineItems })
+    return this.orderRepository.create({
+      customer: customerId,
+      lineItems,
+      currentState: OrderStatus.OPEN,
+    });
   }
 
   async updateOrder(
     id: string,
     currentState: OrderStatus,
-    employee?: Employee,
+    employee?: EmployeeInput,
   ): Promise<OrderDocument> {
     if (!id) {
       throw new BadRequestException('id field cannot be empty!');
@@ -49,14 +56,11 @@ export class OrderService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('Invalid order id!');
     }
-    const order = await this.orderRepository.findById
 
+    const order = await this.orderRepository.findById(id);
     if (!order) {
       throw new BadRequestException('Order not found');
     }
-
-    // WORK FROM HERE
-    // STATUS CHANGES NEED TO BE RETHOUGHT AND REFACTORED
 
     if (currentState === OrderStatus.IN_PROGRESS) {
       if (order.currentState !== OrderStatus.OPEN) {
@@ -69,7 +73,11 @@ export class OrderService {
           'Employee must be provided when setting order to IN_PROGRESS',
         );
       }
-      order.employee = employee;
+
+      order.employee = {
+        id: '',
+        ...employee,
+      } as Employee;
     } else if (currentState === OrderStatus.COMPLETE) {
       if (order.currentState !== OrderStatus.IN_PROGRESS) {
         throw new BadRequestException(
